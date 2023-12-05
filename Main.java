@@ -5,23 +5,29 @@ import java.time.format.DateTimeFormatter;
 
 public class Main {
     public static void main(String[] args) {
-        menu();
+      String city = "DefaultCity"; 
+
+      if(args.length > 0){
+        city = args[0];
+      }
+      
+        menu(city);
 
 //        Schedule s = new Schedule("BJ, Tim, 10/27/23, Late Night");
 //        writeSchedule(s);
     }
 
     //functions
-    public static void menu() {
+    public static void menu(String city) {
         Scanner scan = new Scanner(System.in);
         System.out.println("=== MENU ===");
         System.out.println("What are you looking to do? (Enter either Schedule, Cancel, Signup, Dropout, DJ Status, Date Status). Enter Quit to stop.");
         String response = scan.nextLine().toLowerCase();
-        switchCase(response);
+        switchCase(response, city);
     }
 
     // Added breaks to switch so only one case occurs at a time
-    private static void switchCase(String response) {// doesn't handle incorrect input
+    private static void switchCase(String response, String city) {// doesn't handle incorrect input
         Scanner scan = new Scanner(System.in);
         switch (response) {
             case ("schedule"):
@@ -38,7 +44,7 @@ public class Main {
                 String x5 = scan.nextLine();
                 x5 = x5.toLowerCase();
                 if (!x5.equals("quit")) {
-                    switchCase(x5);
+                    switchCase(x5, "");
                 } else {
                     break;
                 }
@@ -58,12 +64,12 @@ public class Main {
                 if (x4.equals("quit")) {
                     System.exit(0);
                 } else {
-                    switchCase(x4);
+                    switchCase(x4, "");
                 }
             case ("signup"):
-                List<String> djs = readDJName();
-                List<WaitList> waitLists = readWaitinglist();
-                List<Schedule> schedules = readSchedule();
+                List<String> djs = readDJName("");
+                List<WaitList> waitLists = readWaitinglist("");
+                List<Schedule> schedules = readSchedule("");
                 System.out.println("Enter the name of the DJ you are signing up: ");
                 String newDJ = scan.nextLine().toLowerCase();
                 djs.add(newDJ);
@@ -76,7 +82,7 @@ public class Main {
                 if (x3.equals("quit")) {
                     System.exit(0);
                 } else {
-                    switchCase(x3);
+                    switchCase(x3, "");
                 }
 
             case ("dropout"):
@@ -85,8 +91,8 @@ public class Main {
                 String the_dj = scan.nextLine().toLowerCase();
                 DJ the_dj1 = new DJ(the_dj);
                 List<Schedule> djstatus = the_dj1.djStatus();
-                List<Schedule> true_bookings = readSchedule();
-                List<String> djlist = readDJName();
+                List<Schedule> true_bookings = readSchedule("");
+                List<String> djlist = readDJName("");
                 djlist.remove(the_dj.toLowerCase());
                 List<Schedule> removes = new ArrayList<>();
                 for (Schedule s : true_bookings) {
@@ -97,7 +103,7 @@ public class Main {
                 for (Schedule ss : removes) {
                     true_bookings.remove(ss);
                 }
-                updateSchedule(true_bookings);
+                updateSchedule(true_bookings, "");
                 updateDj(djlist);
                 List<WaitList> droppedCustomers = new ArrayList<>();
                 for (Schedule s : djstatus) {
@@ -109,7 +115,7 @@ public class Main {
                 if (x.equals("quit")) {
                     System.exit(0);
                 } else {
-                    switchCase(x);
+                    switchCase(x, "");
                 }
             case ("dj status"):
                 // enter dj status logic
@@ -128,7 +134,7 @@ public class Main {
                 if (x2.equals("quit")) {
                     System.exit(0);
                 } else {
-                    switchCase(x2);
+                    switchCase(x2, "");
                 }
             case ("date status"):
                 // enter date status logic
@@ -146,27 +152,27 @@ public class Main {
                 if (x1.equals("quit")) {
                     System.exit(0);
                 } else {
-                    switchCase(x1);
+                    switchCase(x1, "");
                 }
             case ("quit"):
                 System.exit(0);
             default:
                 System.out.println("Sorry that's not a correct input, try again!");
                 String new_response = scan.nextLine().toLowerCase();
-                switchCase(new_response);
+                switchCase(new_response, "");
                 if (new_response.equals("quit")) {
                     System.exit(0);
                 } else {
-                    switchCase(new_response);
+                    switchCase(new_response, "");
                 }
                 // enter quit logic, could use default needs testing
         }
     }
 
     // modified read methods to return the files contents as an array, might have to change to deque
-    public static List<String> readDJName() { // equivalent to Start()
+    public static List<String> readDJName(String city) { // equivalent to Start()
         List<String> result = new ArrayList<>();
-        try (Scanner fileReader = new Scanner(new File("DeejayName.txt"))) {
+        try (Scanner fileReader = new Scanner(new File(city + "DeejayName.txt"))) {
             while (fileReader.hasNext()) {
                 result.add(fileReader.nextLine());
             }
@@ -177,9 +183,9 @@ public class Main {
         return result;
     }
 
-    public static List<Schedule> readSchedule() { // are we keeping track of List<Schedule> or are we to just read it from the file each time since we already have it
+    public static List<Schedule> readSchedule(String city) { // are we keeping track of List<Schedule> or are we to just read it from the file each time since we already have it
         List<Schedule> list = new ArrayList<>();
-        try (Scanner fileReader = new Scanner(new File("Schedule.txt"))) {
+        try (Scanner fileReader = new Scanner(new File(city + "Schedule.txt"))) {
             fileReader.nextLine(); // skips first line
             while (fileReader.hasNext()) {
                 Schedule s = new Schedule(fileReader.nextLine());
@@ -192,9 +198,9 @@ public class Main {
         return list;
     }
 
-    public static List<WaitList> readWaitinglist() {
+    public static List<WaitList> readWaitinglist(String city) {
         List<WaitList> list = new ArrayList<>();
-        try (Scanner fileReader = new Scanner(new File("WaitList.txt"))) {
+        try (Scanner fileReader = new Scanner(new File(city + "WaitList.txt"))) {
             fileReader.nextLine(); // skips first line
             while (fileReader.hasNext()) {
                 // Might have to be modified depending on how waiting list format is
@@ -240,7 +246,7 @@ public class Main {
 
     // Returns all the bookings for a specific DJ basically DJ status in a method
     public static List<Schedule> DjSchedule(String Dj) {
-        List<Schedule> list = readSchedule();
+        List<Schedule> list = readSchedule("");
         List<Schedule> list1 = new ArrayList<>();
         Dj = Dj.toLowerCase();
         int count = 0;
@@ -315,12 +321,12 @@ public class Main {
     }
 
     // Handles "manipulation" of Schedule and WaitList txt(Granted their full of schedules)
-    public static void updateSchedule(List<Schedule> list) {
+    public static void updateSchedule(List<Schedule> list, String city) {
         try {
-            File file = new File("Schedule.txt");
+            File file = new File(city + "Schedule.txt");
             file.delete();
             file.createNewFile();
-            FileWriter fileWriter = new FileWriter("Schedule.txt", true);
+            FileWriter fileWriter = new FileWriter(city + "Schedule.txt", true);
 
             PrintWriter printWriter = new PrintWriter(fileWriter);
 
@@ -338,12 +344,12 @@ public class Main {
         }
     }
 
-    public static void updateWaitList(List<WaitList> list) {
+    public static void updateWaitList(List<WaitList> list, String city) {
         try {
-            File file = new File("WaitList.txt");
+            File file = new File(city + "WaitList.txt");
             file.delete();
             file.createNewFile();
-            FileWriter fileWriter = new FileWriter("WaitList.txt", true);
+            FileWriter fileWriter = new FileWriter(city + "WaitList.txt", true);
             PrintWriter printWriter = new PrintWriter(fileWriter);
 
             printWriter.println("Format - Date (MM/DD/YY) , Timeslot (Afternoon, Early Evening, or Late Night)");
@@ -400,8 +406,8 @@ public class Main {
     }
 
     public static void cancel(String customer, LocalDateTime date, String timeslot) {
-        List<Schedule> bookings = readSchedule();
-        List<WaitList> waitLists = readWaitinglist();
+        List<Schedule> bookings = readSchedule("");
+        List<WaitList> waitLists = readWaitinglist("");
         List<Schedule> bList = new ArrayList<>(bookings);
         List<WaitList> wList = new ArrayList<>(waitLists);
         String djName = "";
@@ -423,12 +429,12 @@ public class Main {
                 bList.add(s);
             }
         }
-        updateWaitList(wList);
-        updateSchedule(bList);
+        updateWaitList(wList, "");
+        updateSchedule(bList, "");
     }
 
     public static void schedule(String customer, LocalDateTime date, String timeslot) {
-        List<String> djList = readDJName();
+        List<String> djList = readDJName("");
         int minBookings = Integer.MAX_VALUE;
         String selectedDJ = "";
 
@@ -467,7 +473,7 @@ public class Main {
     }
 
     public static void schedule_dropout(String customer, LocalDateTime date, String timeslot) {
-        List<String> djList = readDJName();
+        List<String> djList = readDJName("");
         boolean available = true;
         Schedule result = new Schedule(customer, "", date, timeslot);
         for (String x : djList) {
@@ -498,7 +504,7 @@ public class Main {
 
     public static void addFront(List<WaitList> waitLists) {
         try {
-            List<WaitList> currentWaitingList = readWaitinglist();
+            List<WaitList> currentWaitingList = readWaitinglist("");
             File file = new File("WaitList.txt");
             file.delete();
             file.createNewFile();
@@ -527,7 +533,7 @@ public class Main {
 
     public static void addFront(WaitList waitList) {
         try {
-            List<WaitList> currentWaitingList = readWaitinglist();
+            List<WaitList> currentWaitingList = readWaitinglist("");
             File file = new File("WaitList.txt");
             file.delete();
             file.createNewFile();
