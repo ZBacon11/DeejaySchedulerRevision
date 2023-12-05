@@ -443,9 +443,6 @@ public class Main {
             List<Schedule> currentDJBookings = currentDJ.djStatus();
             int numOfBookings = currentDJBookings.size();
 
-            System.out.println("DJ: " + x + ", Bookings: " + numOfBookings);
-
-
             boolean conflict = false;
 
             for (Schedule sched : currentDJBookings) {
@@ -454,8 +451,6 @@ public class Main {
                     break;
                 }
             }
-
-            System.out.println("Conflict: " + conflict);
 
             if (!conflict && numOfBookings <= minBookings) {
                 minBookings = numOfBookings;
